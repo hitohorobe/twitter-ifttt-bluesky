@@ -38,4 +38,4 @@ jobs:
         poetry run pytest
     - name: Lint with ruff
       run: |
-        poetry run ruff lint
+        poetry run ruff check .
