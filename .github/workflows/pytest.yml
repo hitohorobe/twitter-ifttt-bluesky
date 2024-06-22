@@ -32,7 +32,7 @@ jobs:
         poetry install --no-interaction
     - name: Run tests
       env:
-        TEST_HAMDLE: ${{ secrets.HANDLE }}
+        TEST_HANDLE: ${{ secrets.HANDLE }}
         TEST_APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
       run: |
         poetry run pytest
