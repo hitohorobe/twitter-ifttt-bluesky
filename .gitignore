@@ -30,3 +30,6 @@ archive.zip
 
 # macOS
 .DS_Store
+
+# requests cache
+*.sqlite
