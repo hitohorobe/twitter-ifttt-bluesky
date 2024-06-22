@@ -2,41 +2,37 @@
 name = "twitter-ifttt-bluesky"
 version = "0.1.0"
 description = ""
-authors = ["Kohei Takeda <godlinkinfinity@gmail.com>"]
+authors = ["hito_horobe <hito-horobe.net>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
-fastapi = "0.105.0"
-uvicorn = "0.24.0"
+python = ">=3.11, <3.13"
+fastapi = "^0.111.0"
+uvicorn = "^0.30.1"
+pydantic = "^2.7.4"
+requests = "^2.32.3"
+bs4 = "^0.0.2"
+requests-cache = "^1.2.1"
 
 [tool.poetry.group.dev.dependencies]
-pre-commit = "3.6.0"
-black = "23.12.0"
-isort = "^5.13.2"
+pytest = "^8.2.2"
+ruff = "^0.4.8"
+pre-commit = "^3.7.1"
 
-[tool.black]
-line-length = 88 
-include = '\.py$'
-exclude = '''
-(
-  /(
-    | docs
-    | \.git
-    | \.github
-    | \.venv
-  )/
-)
-'''
 
-[tool.isort]
-profile = "black"
-multi_line_output = 3
-skip = [".gitignore", ".dockerignore"]
-skip_glob = ["docs/*", ".git/*", ".github/*", ".venv/*"]
+[tool.ruff]
+exclude = [".venv", ".pytest_cache", ".git"]
 
+[tool.ruff.lint]
+select = ["I", "N"]
+
+[tool.mypy]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+pythonpath = "."
+testpaths = ["tests"]
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-

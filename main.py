@@ -1,13 +1,17 @@
+import os
+from logging import getLogger
+
 from fastapi import FastAPI
 
-app = FastAPI()
+from app.router import root_api_router
 
+env = os.getenv("ENV", "local")
+logger = getLogger(__name__)
 
-@app.get("/health")
-def get_health():
-    return {"status": "get alive"}
+if env == "local":
+    app = FastAPI()
+    app.include_router(root_api_router)
 
-
-@app.post("/health")
-def post_health():
-    return {"status": "post alive"}
+else:
+    app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+    app.include_router(root_api_router)

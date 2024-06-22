@@ -1,0 +1,21 @@
+version: '3'
+
+
+services:
+  # app
+  ifttt_to_bluesky_api:
+    container_name: ifttt_to_bluesky_api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - ENV
+      - TEST_HANDLE
+      - TEST_APP_PASSWORD
+    ports:
+      - 8000:8000
+    volumes:
+      # for container debug
+      - .:/app
+
+
