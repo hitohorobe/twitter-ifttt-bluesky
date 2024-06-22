@@ -32,8 +32,8 @@ jobs:
         poetry install --no-interaction
     - name: Run tests
       env:
-        HAMDLE: ${{ secrets.HANDLE }}
-        APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
+        TEST_HAMDLE: ${{ secrets.HANDLE }}
+        TEST_APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
       run: |
         poetry run pytest
     - name: Lint with ruff
