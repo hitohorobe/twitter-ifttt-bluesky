@@ -1,5 +1,4 @@
 import os
-import random
 
 from app.models.bluesky_models import LabelEnum
 from app.settings.bluesky_settings import LIMIT_MESSAGE_LENGTH
@@ -56,7 +55,7 @@ def test_post_record():
         handle=TEST_HANDLE, app_password=TEST_APP_PASSWORD
     )
     assert login_response
-    text = f"test https://hito-horobe.net/ です{random.randint(1, 10)}"* 20
+    text = "test https://hito-horobe.net/ です"* 20
     link_to_tweet = "https://x.com/hito_horobe2/status/1801101262727037180"
     record = Bluesky.make_record(login_response, text, link_to_tweet)
     assert len(record.record.text) >= LIMIT_MESSAGE_LENGTH
