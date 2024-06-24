@@ -168,7 +168,7 @@ class Bluesky:
 
 
     @classmethod
-    def make_record(cls, login_response: LoginResponse, text: str, link_to_tweet: str) -> CreateRecordPayload:
+    def make_record(cls, login_response: LoginResponse, text: str, link_to_tweet: Optional[str]=None) -> CreateRecordPayload:
         """
         新規ポスト用のペイロードを作成する
         - URLを抽出
@@ -244,15 +244,16 @@ class Bluesky:
             byte_start = get_byte_length(text)
             byte_end = byte_start + get_byte_length(link_text)
             text += link_text
-            facet = Facet(
-                index=Index(
-                    byte_start=byte_start,
-                    byte_end=byte_end
-                ), 
-                features=[
-                    Feature(types="app.bsky.richtext.facet#link", uri=HttpUrl(link_to_tweet)),
-                ])
-            facets.append(facet)
+            if link_to_tweet:
+                facet = Facet(
+                    index=Index(
+                        byte_start=byte_start,
+                        byte_end=byte_end
+                    ), 
+                    features=[
+                        Feature(types="app.bsky.richtext.facet#link", uri=HttpUrl(link_to_tweet)),
+                    ])
+                facets.append(facet)
 
         # Embed が存在し、かつリストの最後の要素がセンシティブリストに含まれるURLを持っている場合、
         # センシティブラベルを付与
