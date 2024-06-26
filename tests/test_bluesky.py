@@ -44,7 +44,7 @@ def test_make_record():
         handle=TEST_HANDLE, app_password=TEST_APP_PASSWORD
     )
     assert login_response
-    text = "test https://hito-horobe.net/ です"
+    text = "ハヤカワの書籍が半額になる「早川書房 夏のKindle超ビッグセール」が開催されてる！去年よりラインナップが大幅に増えて3000冊以上が対象、『プロジェクト・ヘイル・メアリー』ほか https://t.co/llBEMgzMlx #ad https://t.co/BfZI5kTpvq"
     link_to_tweet = "https://x.com/hito_horobe2/status/1801101262727037180"
     record = Bluesky.make_record(login_response, text, link_to_tweet)
     assert record
