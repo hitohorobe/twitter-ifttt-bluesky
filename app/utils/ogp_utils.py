@@ -63,7 +63,7 @@ def get_ogp(url: str) -> Optional[OGP]:
 
     # if x.com or twitter.com -> use requests
     if url.find("x.com") != -1 or url.find("twitter.com") != -1:
-        user_agent = "facebookexternalhit"
+        user_agent = "facebookexternalhit/1.1"
         return _get_ogp_from_requests(url, user_agent)
     #elif url.find("amazon.co.jp") != -1:
     #    user_agent = "facebookexternalhit"
