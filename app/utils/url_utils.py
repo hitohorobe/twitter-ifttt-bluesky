@@ -16,22 +16,25 @@ def extract_url(text: str) -> list[str]:
 
 def expand_url(url: str) -> str:
     """入力したURLを展開して返す。OGPの有無によって、次の挙動をする
-    - t.coの場合: 展開して返す
-    - それ以外のURLの場合
-      - OGPがある場合: 入力したURLをそのまま返す
-      - OGPがない場合: OGPが出現するまで、もしくはこれ以上展開できなくなるまで再起的にURLを展開し、展開先のURLを返す
+    - amzn.to: そのまま返す
+    - bit.ly: そのまま返す
+    - twitter.com または x.com で末尾に/photo/1を含む場合: 末尾の/photo/1を削除して返す
+    - それ以外: 展開が完了するまで再帰的に処理し、展開後のURLを返す
     """
+    user_agent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64)"
+    headers = {"User-Agent": user_agent}
     try:
-        if "t.co" in url:
-            response = requests.head(url, timeout=10)
-            return response.headers["Location"]
-        ogp = get_ogp(url)
-        if ogp is not None and ogp.image:
+        if "https://amzn.to" in url:
             return url
-        response = requests.head(url, timeout=10)
+        if "https://bit.ly" in url:
+            return url
+        response = requests.get(url, timeout=10, headers=headers, allow_redirects=False)
         if 300 <= response.status_code < 400:
             return expand_url(response.headers["Location"])
         else:
+            if "twitter.com" in url or "x.com" in url:
+                if "/photo/1" in url:
+                    return url.replace("/photo/1", "")
             return response.url
     except Exception as e:
         print(e)
