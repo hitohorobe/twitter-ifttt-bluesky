@@ -24,6 +24,13 @@ def test_expand_url_amazon():
     assert expanded_url == "https://amzn.to/3RFJ2HN"
 
 
+def test_expand_url_twitter():
+    # TwitterのURLをx.comになるまで再帰的に展開する
+    original_url = "https://t.co/BfZI5kTpvq"
+    expanded_url = expand_url(original_url)
+    assert expanded_url == "https://x.com/hito_horobe2/status/1805572107662934083"
+
+
 def test_ommit_long_url():
     # URLを省略表示する
     url = "https://ja.wikipedia.org/wiki/GitHub"
