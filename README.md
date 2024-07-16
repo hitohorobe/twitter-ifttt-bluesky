@@ -1,9 +1,9 @@
 # twitter-ifttt-bluesky
 Twitter のPOST を IFTTT 経由で取得し、BlueskyにクロスポストするためのAPIサーバです  
-https://twitter-ifttt-bluesky.hito-horobe.net
+https://twitter-ifttt-bluesky-7lfpvgz6fq-de.a.run.app
 
 ## エンドポイントの仕様
-- POST `https://twitter-ifttt-bluesky.hito-horobe.net/twitter_to_bluesky`
+- POST `https://twitter-ifttt-bluesky-7lfpvgz6fq-de.a.run.app/twitter_to_bluesky`
 - ペイロード
 ```
 {
@@ -33,4 +33,4 @@ https://twitter-ifttt-bluesky.hito-horobe.net
 
 
 ## デプロイ
-- mainブランチが更新されると`render.com`へ自動でデプロイ
+- mainブランチが更新されると`cloudrun`へ自動でデプロイ
