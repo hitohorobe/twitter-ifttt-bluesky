@@ -1,16 +1,16 @@
 # twitter-ifttt-bluesky
 Twitter のPOST を IFTTT 経由で取得し、BlueskyにクロスポストするためのAPIサーバです  
-https://twitter-ifttt-bluesky.onrender.com/
+https://twitter-ifttt-bluesky.hito-horobe.net
 
 ## エンドポイントの仕様
-- POST `/twitter_to_bluesky`
+- POST `https://twitter-ifttt-bluesky.hito-horobe.net/twitter_to_bluesky`
 - ペイロード
 ```
 {
-    "handle": <Blueskyのハンドル>,
-    "app_password": <Blueskyのアプリパスワード>,
-    "text": <ツイートの本文>
-    "link_to_tweet": <元ツイートへのリンク>
+    "handle": "<Blueskyのハンドル>",
+    "app_password": "<Blueskyのアプリパスワード>",
+    "text": "<ツイートの本文>",
+    "link_to_tweet": "<元ツイートへのリンク>"
 
 }
 ```
@@ -28,8 +28,8 @@ https://twitter-ifttt-bluesky.onrender.com/
 `make up`
 
 ### ローカルでのAPI Mockの確認
-- swagger [http://localhost:8000/docs](http://localhost:8000/docs)
-- redoc [http://localhost:8000/redoc](http://localhost:8000/redoc)
+- swagger [http://localhost:8080/docs](http://localhost:8080/docs)
+- redoc [http://localhost:8080/redoc](http://localhost:8080/redoc)
 
 
 ## デプロイ
