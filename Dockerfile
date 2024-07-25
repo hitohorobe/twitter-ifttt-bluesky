@@ -21,6 +21,6 @@ EXPOSE 8080
 FROM local AS render
 
 RUN poetry install --only main
-EXPOSE 8000
+EXPOSE 8080
 
 ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
