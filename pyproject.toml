@@ -17,7 +17,7 @@ pytest-mock = "^3.14.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.3"
-ruff = "^0.6.5"
+ruff = "^0.6.7"
 pre-commit = "^3.8.0"
 
 
