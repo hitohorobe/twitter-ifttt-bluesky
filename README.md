@@ -15,7 +15,7 @@ https://twitter-ifttt-bluesky-7lfpvgz6fq-de.a.run.app
 }
 ```
 
-## 環境構築構築
+## 環境構築
 ### 環境変数の設定
 - `pytest`を実行するためにテスト用アカウントを用意する
 - `cp .env.sample .env`
