@@ -4,5 +4,8 @@ PORN_URL_LIST = [
     "www.dmm.com",
     "xvideos.com",
     "pornhub.com",
-    "xhamster.com"
+    "xhamster.com",
+    "fantia.jp",
+    "www.fanbox.cc",
+    "www.patreon.com",
 ]
