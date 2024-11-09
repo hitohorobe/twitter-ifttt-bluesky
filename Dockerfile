@@ -18,7 +18,7 @@ EXPOSE 8080
 
 
 # for release
-FROM local AS render
+FROM local AS gcloud
 
 RUN poetry install --only main
 EXPOSE 8000
