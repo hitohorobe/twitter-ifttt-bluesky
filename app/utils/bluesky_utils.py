@@ -1,4 +1,5 @@
 import json
+import os
 import re
 from datetime import datetime
 from logging import getLogger
@@ -31,13 +32,19 @@ from app.models.exception_models import (
     LoginError,
     PostFailedError,
 )
-from app.settings.bluesky_settings import BLUESKY_API_DOMAIN, LIMIT_MESSAGE_LENGTH, TZ
+from app.settings.bluesky_settings import (
+    BLUESKY_API_DOMAIN,
+    DEFAULT_CLIENT_NAME,
+    LIMIT_MESSAGE_LENGTH,
+    TZ,
+)
 from app.settings.sensitive_url_list import PORN_URL_LIST
 from app.utils.ogp_utils import get_ogp
 from app.utils.url_utils import expand_url, extract_url, get_byte_length, ommit_long_url
 
 logger = getLogger(__name__)
 requests_cache.install_cache("bluesky_cache", backend="sqlite", expire_after=300)
+CLIENT_NAME = os.getenv("CLIENT_NAME", DEFAULT_CLIENT_NAME)
 
 
 class Bluesky:
@@ -60,15 +67,17 @@ class Bluesky:
         # ハンドルの先頭に@がついていれば削除
         if handle.startswith("@"):
             handle = handle[1:]
-            
+
         login_endpoint = (
             f"https://{BLUESKY_API_DOMAIN}/xrpc/com.atproto.server.createSession"
         )
         headers = {"Content-Type": "application/json"}
-        payload = json.dumps({
-            "identifier": handle,
-            "password": app_password,
-        })
+        payload = json.dumps(
+            {
+                "identifier": handle,
+                "password": app_password,
+            }
+        )
 
         try:
             response = requests.post(
@@ -90,7 +99,7 @@ class Bluesky:
         except Timeout as e:
             logger.error(e)
             raise LoginError
-        
+
         except HTTPError as e:
             logger.error(e)
             raise LoginError
@@ -98,7 +107,6 @@ class Bluesky:
         except Exception as e:
             logger.error(e)
             raise LoginError
-
 
     @classmethod
     def sensitive_url_check(cls, url: str) -> Optional[LabelEnum]:
@@ -108,12 +116,15 @@ class Bluesky:
                 return LabelEnum.porn
         return None
 
-
     @classmethod
-    def upload_image(cls, login_response: LoginResponse, image_url: str) -> Optional[ImageUploadResponse]:
+    def upload_image(
+        cls, login_response: LoginResponse, image_url: str
+    ) -> Optional[ImageUploadResponse]:
         """画像をblob形式でアップロードして参照情報を取得する"""
 
-        image_endpoiiint = f"https://{BLUESKY_API_DOMAIN}/xrpc/com.atproto.repo.uploadBlob"
+        image_endpoiiint = (
+            f"https://{BLUESKY_API_DOMAIN}/xrpc/com.atproto.repo.uploadBlob"
+        )
 
         # 画像のURLにアクセスしてBLOBとして保存する
         image_response = None
@@ -126,7 +137,7 @@ class Bluesky:
         except Exception as e:
             logger.error(e)
             return None
-        
+
         if image_response is None:
             return None
 
@@ -146,7 +157,7 @@ class Bluesky:
                     types="blob",
                     ref=Ref(link=response_obj["blob"]["ref"]["$link"]),
                     mime_type=response_obj["blob"]["mimeType"],
-                    size=response_obj["blob"]["size"]
+                    size=response_obj["blob"]["size"],
                 )
             )
 
@@ -166,9 +177,13 @@ class Bluesky:
             logger.error(e)
             raise ImageUploadError
 
-
     @classmethod
-    def make_record(cls, login_response: LoginResponse, text: str, link_to_tweet: Optional[str]=None) -> CreateRecordPayload:
+    def make_record(
+        cls,
+        login_response: LoginResponse,
+        text: str,
+        link_to_tweet: Optional[str] = None,
+    ) -> CreateRecordPayload:
         """
         新規ポスト用のペイロードを作成する
         - URLを抽出
@@ -202,18 +217,19 @@ class Bluesky:
                     continue
 
                 else:
-                    start_string = matched.start()            
+                    start_string = matched.start()
                     byte_start = get_byte_length(text[:start_string])
                     byte_end = byte_start + get_byte_length(omitted_url)
 
                     facet = Facet(
-                        index=Index(
-                            byte_start=byte_start,
-                            byte_end=byte_end
-                        ), 
+                        index=Index(byte_start=byte_start, byte_end=byte_end),
                         features=[
-                            Feature(types="app.bsky.richtext.facet#link", uri=HttpUrl(expanded_url)),
-                        ])
+                            Feature(
+                                types="app.bsky.richtext.facet#link",
+                                uri=HttpUrl(expanded_url),
+                            ),
+                        ],
+                    )
                     facets.append(facet)
 
             ogp = get_ogp(expanded_url)
@@ -222,7 +238,9 @@ class Bluesky:
 
             image_upload_response = None
             if ogp.image:
-                image_upload_response = Bluesky.upload_image(login_response, str(ogp.image))
+                image_upload_response = Bluesky.upload_image(
+                    login_response, str(ogp.image)
+                )
 
             embed.append(
                 Embed(
@@ -231,8 +249,12 @@ class Bluesky:
                         uri=HttpUrl(expanded_url),
                         title=ogp.title if ogp.title else "",
                         description=ogp.description if ogp.description else "",
-                        thumb=image_upload_response.blob if image_upload_response else None,
-                    )
+                        thumb=(
+                            image_upload_response.blob
+                            if image_upload_response
+                            else None
+                        ),
+                    ),
                 )
             )
 
@@ -240,19 +262,20 @@ class Bluesky:
         # 文字数上限-3文字になるようテキストを切り詰めたのち、参照リンクを付与
         if len(text) > LIMIT_MESSAGE_LENGTH:
             link_text = "...\nExpand"
-            text = text[:LIMIT_MESSAGE_LENGTH-len(link_text)]
+            text = text[: LIMIT_MESSAGE_LENGTH - len(link_text)]
             byte_start = get_byte_length(text)
             byte_end = byte_start + get_byte_length(link_text)
             text += link_text
             if link_to_tweet:
                 facet = Facet(
-                    index=Index(
-                        byte_start=byte_start,
-                        byte_end=byte_end
-                    ), 
+                    index=Index(byte_start=byte_start, byte_end=byte_end),
                     features=[
-                        Feature(types="app.bsky.richtext.facet#link", uri=HttpUrl(link_to_tweet)),
-                    ])
+                        Feature(
+                            types="app.bsky.richtext.facet#link",
+                            uri=HttpUrl(link_to_tweet),
+                        ),
+                    ],
+                )
                 facets.append(facet)
 
         # Embed が存在し、かつリストの最後の要素がセンシティブリストに含まれるURLを持っている場合、
@@ -262,26 +285,28 @@ class Bluesky:
             if label_value:
                 labels = Labels(
                     types="com.atproto.label.defs#selfLabels",
-                    values=[LabelValue(val=label_value)]
+                    values=[LabelValue(val=label_value)],
                 )
 
         record = CreateRecordPayload(
-            repo = login_response.did,
+            repo=login_response.did,
             collection="app.bsky.feed.post",
-            record = Record(
+            record=Record(
                 text=text,
                 created_at=datetime.now(TZ).isoformat(),
                 facets=facets,
                 embed=embed[-1] if embed else None,
-                labels=labels
-            )
+                labels=labels,
+                via=CLIENT_NAME,
+            ),
         )
 
         return record
 
-
     @classmethod
-    def post_record(cls, login_response: LoginResponse, record: CreateRecordPayload) -> CreateRecordPayload:
+    def post_record(
+        cls, login_response: LoginResponse, record: CreateRecordPayload
+    ) -> CreateRecordPayload:
         """新規ポストを投稿する"""
 
         post_endpoint = (
@@ -295,7 +320,10 @@ class Bluesky:
 
         try:
             response = requests.post(
-                post_endpoint, data=record.model_dump_json(by_alias=True, exclude_none=True), headers=headers, timeout=10
+                post_endpoint,
+                data=record.model_dump_json(by_alias=True, exclude_none=True),
+                headers=headers,
+                timeout=10,
             )
             return record
 
@@ -314,5 +342,3 @@ class Bluesky:
         except Exception as e:
             logger.error(e)
             raise PostFailedError
-
-
