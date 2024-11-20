@@ -1,3 +1,4 @@
+import os
 from logging import getLogger
 from typing import Optional
 
@@ -15,7 +16,10 @@ from app.models.exception_models import (
 from app.models.ifttt_models import IftttRequestBody
 from app.utils.bluesky_utils import Bluesky
 
-logger = getLogger(__name__)
+log_level = os.getenv("LOG_LEVEL", "INFO")
+logger = getLogger("uvicorn.app")
+logger.setLevel(log_level)
+
 router = APIRouter()
 
 
@@ -27,7 +31,7 @@ router = APIRouter()
         status.HTTP_400_BAD_REQUEST: {"model": PostFailedErrorMessage},
         status.HTTP_400_BAD_REQUEST: {"model": MessageBlankErrorMessage},
         status.HTTP_500_INTERNAL_SERVER_ERROR: {},
-    }
+    },
 )
 def twitter_to_bluesky(body: IftttRequestBody) -> Optional[CreateRecordPayload]:
     """TwitterからBlueskyへの投稿"""
@@ -44,12 +48,15 @@ def twitter_to_bluesky(body: IftttRequestBody) -> Optional[CreateRecordPayload]:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=LoginError.message,
             )
-        record = bluesky.make_record(
-            login_response, text, link_to_tweet
+        record = bluesky.make_record(login_response, text, link_to_tweet)
+        logger.info(
+            f"handle: {handle}, record: {record}, link_to_tweet: {link_to_tweet}"
         )
-        post_record = bluesky.post_record(login_response, record)
-        return post_record
-    
+
+        # post_record = bluesky.post_record(login_response, record)
+        # return post_record
+        return None
+
     except LoginError as e:
         logger.error(e)
         raise HTTPException(
@@ -63,7 +70,7 @@ def twitter_to_bluesky(body: IftttRequestBody) -> Optional[CreateRecordPayload]:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=PostFailedError.message,
         )
-    
+
     except MessageBlankError as e:
         logger.error(e)
         raise HTTPException(

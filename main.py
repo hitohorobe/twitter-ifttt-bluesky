@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from app.router import root_api_router
 
 env = os.getenv("ENV", "local")
-logger = getLogger(__name__)
+logger = getLogger("uvicorn.app")
 
 if env == "local":
     app = FastAPI()
