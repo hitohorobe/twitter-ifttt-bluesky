@@ -15,7 +15,8 @@ def test_get_ogp_twitter():
     # TwitteからOGPを取得する
     url = "https://x.com/hito_horobe2/status/1805572107662934083"
     ogp = get_ogp(url)
-    # 以前は画像が取得できたが、今はできずタイトルとサイト名しか取れない
+    # センシティブ判定があるときは画像が返ってこない
+    # サイト名とタイトルは必ず返ってくる
     assert ogp.title
     assert ogp.site_name
 
