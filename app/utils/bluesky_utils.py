@@ -42,7 +42,7 @@ from app.settings.sensitive_url_list import PORN_URL_LIST
 from app.utils.ogp_utils import get_ogp
 from app.utils.url_utils import expand_url, extract_url, get_byte_length, ommit_long_url
 
-logger = getLogger(__name__)
+logger = getLogger("uvicorn.app")
 requests_cache.install_cache("bluesky_cache", backend="sqlite", expire_after=300)
 CLIENT_NAME = os.getenv("CLIENT_NAME", DEFAULT_CLIENT_NAME)
 
