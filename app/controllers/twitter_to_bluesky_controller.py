@@ -53,9 +53,8 @@ def twitter_to_bluesky(body: IftttRequestBody) -> Optional[CreateRecordPayload]:
             f"handle: {handle}, record: {record}, link_to_tweet: {link_to_tweet}"
         )
 
-        # post_record = bluesky.post_record(login_response, record)
-        # return post_record
-        return None
+        post_record = bluesky.post_record(login_response, record)
+        return post_record
 
     except LoginError as e:
         logger.error(e)
