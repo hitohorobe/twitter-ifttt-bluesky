@@ -7,6 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from app.models.ogp_models import OGP
+from app.settings.bluesky_settings import BLUESKY_REQUEST_TIMEOUT
 
 
 log_level = os.getenv("LOG_LEVEL", "INFO")
@@ -18,7 +19,7 @@ def _get_ogp_from_requests(url: str, user_agent: str) -> Optional[OGP]:
     """Retrieve OGP using requests"""
     headers = {"User-Agent": user_agent}
     try:
-        response = requests.get(url, headers=headers, timeout=10)
+        response = requests.get(url, headers=headers, timeout=BLUESKY_REQUEST_TIMEOUT)
 
         if response.status_code != 200:
             return None
@@ -54,7 +55,9 @@ def _get_ogp_from_bluesky(url: str, user_agent: str) -> Optional[OGP]:
     headers = {"User-Agent": user_agent}
     request_url = f"https://cardyb.bsky.app/v1/extract?url={url}"
     try:
-        response = requests.get(request_url, headers=headers, timeout=10)
+        response = requests.get(
+            request_url, headers=headers, timeout=BLUESKY_REQUEST_TIMEOUT
+        )
         if response.status_code != 200:
             return None
 

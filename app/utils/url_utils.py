@@ -4,6 +4,7 @@ import requests
 
 from app.models.bluesky_models import LabelEnum
 from app.utils.ogp_utils import get_ogp
+from app.settings.bluesky_settings import BLUESKY_REQUEST_TIMEOUT
 
 
 def extract_url(text: str) -> list[str]:
@@ -28,7 +29,9 @@ def expand_url(url: str) -> str:
             return url
         if "https://bit.ly" in url:
             return url
-        response = requests.get(url, timeout=10, headers=headers, allow_redirects=False)
+        response = requests.get(
+            url, timeout=BLUESKY_REQUEST_TIMEOUT, headers=headers, allow_redirects=False
+        )
         if 300 <= response.status_code < 400:
             return expand_url(response.headers["Location"])
         else:
@@ -46,7 +49,7 @@ def ommit_long_url(url: str, length=32) -> str:
     ただし、入力した文字列が32文字以下の場合はそのまま返す
     """
     if len(url) > length:
-        return url[:length-3] + "..."
+        return url[: length - 3] + "..."
     return url
 
 
