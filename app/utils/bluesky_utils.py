@@ -34,6 +34,7 @@ from app.models.exception_models import (
 )
 from app.settings.bluesky_settings import (
     BLUESKY_API_DOMAIN,
+    BLUESKY_REQUEST_TIMEOUT,
     DEFAULT_CLIENT_NAME,
     LIMIT_MESSAGE_LENGTH,
     TZ,
@@ -81,7 +82,10 @@ class Bluesky:
 
         try:
             response = requests.post(
-                login_endpoint, data=payload, headers=headers, timeout=10
+                login_endpoint,
+                data=payload,
+                headers=headers,
+                timeout=BLUESKY_REQUEST_TIMEOUT,
             )
             if response.status_code != 200:
                 raise LoginError
@@ -132,7 +136,7 @@ class Bluesky:
         # ウェブサイト側の設定ミスで指定されているリンクから画像が取得できない場合があるため、
         # その場合は例外で停止させず None を返す
         try:
-            image_response = requests.get(image_url, timeout=10)
+            image_response = requests.get(image_url, timeout=BLUESKY_REQUEST_TIMEOUT)
 
         except Exception as e:
             logger.error(e)
@@ -148,7 +152,10 @@ class Bluesky:
         }
         try:
             response = requests.post(
-                image_endpoiiint, data=blobs, headers=headers, timeout=10
+                image_endpoiiint,
+                data=blobs,
+                headers=headers,
+                timeout=BLUESKY_REQUEST_TIMEOUT,
             )
 
             response_obj = json.loads(response.text)
@@ -323,7 +330,7 @@ class Bluesky:
                 post_endpoint,
                 data=record.model_dump_json(by_alias=True, exclude_none=True),
                 headers=headers,
-                timeout=10,
+                timeout=BLUESKY_REQUEST_TIMEOUT,
             )
             return record
 
