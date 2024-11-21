@@ -1,5 +1,5 @@
-import os
 import json
+import os
 from logging import getLogger
 from typing import Optional
 
@@ -8,7 +8,6 @@ from bs4 import BeautifulSoup
 
 from app.models.ogp_models import OGP
 from app.settings.bluesky_settings import BLUESKY_REQUEST_TIMEOUT
-
 
 log_level = os.getenv("LOG_LEVEL", "INFO")
 logger = getLogger("uvicorn.app")

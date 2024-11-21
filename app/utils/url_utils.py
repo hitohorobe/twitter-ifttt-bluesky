@@ -3,8 +3,8 @@ import re
 import requests
 
 from app.models.bluesky_models import LabelEnum
-from app.utils.ogp_utils import get_ogp
 from app.settings.bluesky_settings import BLUESKY_REQUEST_TIMEOUT
+from app.utils.ogp_utils import get_ogp
 
 
 def extract_url(text: str) -> list[str]:
