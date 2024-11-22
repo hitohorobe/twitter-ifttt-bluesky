@@ -1,5 +1,7 @@
 # twitter-ifttt-bluesky
 Twitter のPOST を IFTTT 経由で取得し、BlueskyにクロスポストするためのAPIサーバです  
+## 使い方
+[IFTTTを使ってX/TwitterとBlueskyに同時投稿する｜人間が大好き @hito_horobe](https://note.com/hito_horobe/n/nadf7a5a156d3)
 
 ## エンドポイントの仕様
 - POST `https://twitter-ifttt-bluesky.hito-horobe.net/twitter_to_bluesky`
