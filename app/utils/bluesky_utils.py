@@ -126,7 +126,7 @@ class Bluesky:
     ) -> Optional[ImageUploadResponse]:
         """画像をblob形式でアップロードして参照情報を取得する"""
 
-        image_endpoiiint = (
+        image_endpoint = (
             f"https://{BLUESKY_API_DOMAIN}/xrpc/com.atproto.repo.uploadBlob"
         )
 
@@ -152,7 +152,7 @@ class Bluesky:
         }
         try:
             response = requests.post(
-                image_endpoiiint,
+                image_endpoint,
                 data=blobs,
                 headers=headers,
                 timeout=BLUESKY_REQUEST_TIMEOUT,
@@ -332,6 +332,9 @@ class Bluesky:
                 headers=headers,
                 timeout=BLUESKY_REQUEST_TIMEOUT,
             )
+            if response.status_code != 200:
+                logger.error(response.text)
+                raise PostFailedError
             return record
 
         except ConnectionError as e:
