@@ -75,6 +75,30 @@ def _get_ogp_from_bluesky(url: str, user_agent: str) -> Optional[OGP]:
         return None
 
 
+def _get_ogp_from_amazon(url: str, user_agent: str) -> Optional[OGP]:
+    """Retrieve OGP from Amazon and if it's not available return mock ogp data"""
+    ogp = _get_ogp_from_requests(url, user_agent)
+    if ogp:
+        return ogp
+
+    if not ogp:
+        try:
+            res = requests.get(url, headers={"User-Agent": user_agent})
+            if res.status_code != 200:
+                return None
+            soup = BeautifulSoup(res.text, "html.parser")
+            title = soup.find("head").find("title").text
+
+            return OGP(
+                title=title,
+                description=title,
+                url=url,
+            )
+        except Exception as e:
+            logger.error(e)
+            return None
+
+
 def get_ogp(url: str) -> Optional[OGP]:
     """Get OGP data from the specified URL."""
 
@@ -82,6 +106,12 @@ def get_ogp(url: str) -> Optional[OGP]:
     if url.find("x.com") != -1 or url.find("twitter.com") != -1:
         user_agent = "facebookexternalhit/1.1"
         return _get_ogp_from_requests(url, user_agent)
+    if url.find("amazon.co.jp") != -1:
+        user_agent = "facebookexternalhit"
+        return _get_ogp_from_amazon(url, user_agent)
+    if url.find("amzn.to") != -1:
+        user_agent = "facebookexternalhit"
+        return _get_ogp_from_amazon(url, user_agent)
     # elif url.find("amazon.co.jp") != -1:
     #    user_agent = "facebookexternalhit"
     #    return _get_ogp_from_requests(url, user_agent)

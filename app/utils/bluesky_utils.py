@@ -1,3 +1,4 @@
+import io
 import json
 import os
 import re
@@ -7,6 +8,7 @@ from typing import Optional
 
 import requests
 import requests_cache
+from PIL import Image
 from pydantic import HttpUrl
 from requests import ConnectionError, HTTPError, Timeout
 
@@ -46,6 +48,7 @@ from app.utils.url_utils import expand_url, extract_url, get_byte_length, ommit_
 logger = getLogger("uvicorn.app")
 requests_cache.install_cache("bluesky_cache", backend="sqlite", expire_after=300)
 CLIENT_NAME = os.getenv("CLIENT_NAME", DEFAULT_CLIENT_NAME)
+MAX_THUMB_IMAGE_SIZE = 1 * 1024 * 1024  # 1MB
 
 
 class Bluesky:
@@ -121,6 +124,28 @@ class Bluesky:
         return None
 
     @classmethod
+    def resize_thumb_image(cls, image_bytes: bytes) -> Optional[bytes]:
+        """urlから画像を取得し、リサイズしてOGP用のサムネイル画像を生成する"""
+        try:
+            image = Image.open(io.BytesIO(image_bytes))
+            # 拡張子の判定
+            format = image.format
+
+            # 画像サイズが1MBを超える場合は半分にリサイズする
+            if len(image_bytes) > MAX_THUMB_IMAGE_SIZE:
+                resized_image = image.resize(
+                    (int(image.width / 2), int(image.height / 2)),
+                )
+                resized_image_bytes = io.BytesIO()
+                resized_image.save(resized_image_bytes, format=format)
+                # 再起的に処理する
+                return cls.resize_thumb_image(resized_image_bytes.getvalue())
+            return image_bytes
+        except Exception as e:
+            logger.error(e)
+            return None
+
+    @classmethod
     def upload_image(
         cls, login_response: LoginResponse, image_url: str
     ) -> Optional[ImageUploadResponse]:
@@ -150,10 +175,11 @@ class Bluesky:
             "Authorization": f"Bearer {login_response.access_jwt}",
             "Content-Type": "application/octet-stream",
         }
+        resized_image_blobs = cls.resize_thumb_image(blobs)
         try:
             response = requests.post(
                 image_endpoint,
-                data=blobs,
+                data=resized_image_blobs,
                 headers=headers,
                 timeout=BLUESKY_REQUEST_TIMEOUT,
             )
