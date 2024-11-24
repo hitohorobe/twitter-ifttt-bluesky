@@ -77,11 +77,9 @@ def _get_ogp_from_bluesky(url: str, user_agent: str) -> Optional[OGP]:
 
 def _get_ogp_from_amazon(url: str, user_agent: str) -> Optional[OGP]:
     """Retrieve OGP from Amazon and if it's not available return mock ogp data"""
-    ogp = _get_ogp_from_requests(url, user_agent)
-    if ogp:
-        return ogp
+    ogp = _get_ogp_from_amazon(url, user_agent)
 
-    if not ogp:
+    if not ogp.title or not ogp.description:
         try:
             res = requests.get(url, headers={"User-Agent": user_agent})
             if res.status_code != 200:
@@ -98,6 +96,9 @@ def _get_ogp_from_amazon(url: str, user_agent: str) -> Optional[OGP]:
             logger.error(e)
             return None
 
+    if ogp:
+        return ogp
+
 
 def get_ogp(url: str) -> Optional[OGP]:
     """Get OGP data from the specified URL."""
@@ -107,11 +108,11 @@ def get_ogp(url: str) -> Optional[OGP]:
         user_agent = "facebookexternalhit/1.1"
         return _get_ogp_from_requests(url, user_agent)
     if url.find("amazon.co.jp") != -1:
-        user_agent = "facebookexternalhit"
-        return _get_ogp_from_amazon(url, user_agent)
+        user_agent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64)"
+        return _get_ogp_from_bluesky(url, user_agent)
     if url.find("amzn.to") != -1:
-        user_agent = "facebookexternalhit"
-        return _get_ogp_from_amazon(url, user_agent)
+        user_agent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64)"
+        return _get_ogp_from_bluesky(url, user_agent)
     # elif url.find("amazon.co.jp") != -1:
     #    user_agent = "facebookexternalhit"
     #    return _get_ogp_from_requests(url, user_agent)
