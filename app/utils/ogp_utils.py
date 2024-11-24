@@ -77,7 +77,7 @@ def _get_ogp_from_bluesky(url: str, user_agent: str) -> Optional[OGP]:
 
 def _get_ogp_from_amazon(url: str, user_agent: str) -> Optional[OGP]:
     """Retrieve OGP from Amazon and if it's not available return mock ogp data"""
-    ogp = _get_ogp_from_amazon(url, user_agent)
+    ogp = _get_ogp_from_bluesky(url, user_agent)
 
     if not ogp.title or not ogp.description:
         try:
@@ -98,6 +98,8 @@ def _get_ogp_from_amazon(url: str, user_agent: str) -> Optional[OGP]:
 
     if ogp:
         return ogp
+
+    return None
 
 
 def get_ogp(url: str) -> Optional[OGP]:
