@@ -1,5 +1,6 @@
 import io
 import json
+import mimetypes
 import os
 import re
 from datetime import datetime
@@ -128,7 +129,7 @@ class Bluesky:
         """urlから画像を取得し、リサイズしてOGP用のサムネイル画像を生成する"""
         try:
             image = Image.open(io.BytesIO(image_bytes))
-            # 拡張子の判定
+            # 画像の形式を取得する
             format = image.format
 
             # 画像サイズが1MBを超える場合は半分にリサイズする
@@ -137,13 +138,20 @@ class Bluesky:
                     (int(image.width / 2), int(image.height / 2)),
                 )
                 resized_image_bytes = io.BytesIO()
-                resized_image.save(resized_image_bytes, format=format)
-                # 再起的に処理する
-                return cls.resize_thumb_image(resized_image_bytes.getvalue())
+                try:
+                    resized_image.save(resized_image_bytes, format=format)
+                    # 再起的に処理する
+                    return cls.resize_thumb_image(resized_image_bytes.getvalue())
+
+                except Exception as e:
+                    logger.error(e)
+                    resized_image.save(resized_image_bytes, format="JPEG")
+                    # 再起的に処理する
+                    return cls.resize_thumb_image(resized_image_bytes.getvalue())
             return image_bytes
         except Exception as e:
             logger.error(e)
-            return None
+            return image_bytes
 
     @classmethod
     def upload_image(
@@ -162,6 +170,7 @@ class Bluesky:
         # その場合は例外で停止させず None を返す
         try:
             image_response = requests.get(image_url, timeout=BLUESKY_REQUEST_TIMEOUT)
+            mime_type = image_response.headers.get("Content-Type")
 
         except Exception as e:
             logger.error(e)
