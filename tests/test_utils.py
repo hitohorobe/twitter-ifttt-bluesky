@@ -1,4 +1,9 @@
-from app.utils.url_utils import expand_url, extract_url, ommit_long_url
+from app.utils.url_utils import (
+    expand_url,
+    extract_hashtags,
+    extract_url,
+    ommit_long_url,
+)
 
 
 def test_extract_url():
@@ -44,6 +49,25 @@ def test_ommit_long_url_short():
     url = "https://x.com/"
     omitted_url = ommit_long_url(url)
     assert omitted_url == url
+
+
+def test_extract_hashtags():
+    # テキストからハッシュタグを抽出する
+    text = "これはテストです。#テスト #Python #GitHub"
+    hashtags = extract_hashtags(text)
+    assert hashtags == ["#テスト", "#Python", "#GitHub"]
+    text2 = "これはハッシュタグを含まないテキストです https://example.com#top"
+    hashtags2 = extract_hashtags(text2)
+    assert hashtags2 == []
+    text3 = "#ハッシュタグ これはハッシュタグが文頭のパターン"
+    hashtags3 = extract_hashtags(text3)
+    assert hashtags3 == ["#ハッシュタグ"]
+    text4 = "これはハッシュタグが文末のパターン #ハッシュタグ"
+    hashtags4 = extract_hashtags(text4)
+    assert hashtags4 == ["#ハッシュタグ"]
+    text5 = "これは改行後にハッシュタグがあるパターン\n#ハッシュタグ"
+    hashtags5 = extract_hashtags(text5)
+    assert hashtags5 == ["#ハッシュタグ"]
 
 
 def get_byte_length():

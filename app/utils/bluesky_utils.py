@@ -44,7 +44,13 @@ from app.settings.bluesky_settings import (
 )
 from app.settings.sensitive_url_list import PORN_URL_LIST
 from app.utils.ogp_utils import get_ogp
-from app.utils.url_utils import expand_url, extract_url, get_byte_length, ommit_long_url
+from app.utils.url_utils import (
+    expand_url,
+    extract_hashtags,
+    extract_url,
+    get_byte_length,
+    ommit_long_url,
+)
 
 logger = getLogger("uvicorn.app")
 requests_cache.install_cache("bluesky_cache", backend="sqlite", expire_after=300)
@@ -238,9 +244,36 @@ class Bluesky:
         """
 
         urls = extract_url(text)
+        hashtags = extract_hashtags(text)
         facets: list[Facet] = []
         embed: list[Embed] = []
         labels = None
+
+        # 重複するハッシュタグを削除
+        hashtags = list(dict.fromkeys(hashtags))
+        for hashtag in hashtags:
+            matched_all = re.finditer(re.escape(hashtag), text)
+            # リッチテキストでハッシュタグを表現する
+            # 終了位置が文字数上限を超えている場合はリッチテキストを作成しない
+            for matched in matched_all:
+                if matched.end() > LIMIT_MESSAGE_LENGTH:
+                    continue
+                else:
+                    start_string = matched.start()
+                    byte_start = get_byte_length(text[:start_string])
+                    byte_end = byte_start + get_byte_length(hashtag)
+
+                    facet = Facet(
+                        index=Index(byte_start=byte_start, byte_end=byte_end),
+                        features=[
+                            Feature(
+                                types="app.bsky.richtext.facet#tag",
+                                # ハッシュタグの先頭の#を削除
+                                tag=re.sub(r"^#", "", hashtag),
+                            ),
+                        ],
+                    )
+                    facets.append(facet)
 
         # 重複するURLを削除
         urls = list(dict.fromkeys(urls))
