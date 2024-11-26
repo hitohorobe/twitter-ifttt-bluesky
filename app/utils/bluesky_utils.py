@@ -151,7 +151,7 @@ class Bluesky:
             return image_bytes
         except Exception as e:
             logger.error(e)
-            return image_bytes
+            return None
 
     @classmethod
     def upload_image(
@@ -170,13 +170,15 @@ class Bluesky:
         # その場合は例外で停止させず None を返す
         try:
             image_response = requests.get(image_url, timeout=BLUESKY_REQUEST_TIMEOUT)
-            mime_type = image_response.headers.get("Content-Type")
 
         except Exception as e:
             logger.error(e)
             return None
 
         if image_response is None:
+            return None
+
+        if image_response.status_code != 200:
             return None
 
         blobs = image_response.content
