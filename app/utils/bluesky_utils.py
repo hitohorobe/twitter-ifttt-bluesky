@@ -46,10 +46,10 @@ from app.settings.sensitive_url_list import PORN_URL_LIST
 from app.utils.ogp_utils import get_ogp
 from app.utils.url_utils import (
     expand_url,
+    extract_hashtags,
     extract_url,
     get_byte_length,
     ommit_long_url,
-    extract_hashtags,
 )
 
 logger = getLogger("uvicorn.app")

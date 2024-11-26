@@ -1,8 +1,8 @@
 from app.utils.url_utils import (
     expand_url,
+    extract_hashtags,
     extract_url,
     ommit_long_url,
-    extract_hashtags,
 )
 
 
