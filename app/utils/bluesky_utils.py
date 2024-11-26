@@ -268,7 +268,8 @@ class Bluesky:
                         features=[
                             Feature(
                                 types="app.bsky.richtext.facet#tag",
-                                tag=hashtag,
+                                # ハッシュタグの先頭の#を削除
+                                tag=re.sub(r"^#", "", hashtag),
                             ),
                         ],
                     )
