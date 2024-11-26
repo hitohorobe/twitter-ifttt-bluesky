@@ -53,6 +53,19 @@ def ommit_long_url(url: str, length=32) -> str:
     return url
 
 
+def extract_hashtags(text: str) -> list[str]:
+    """入力した文字列の中からハッシュタグを全て抜粋してリストで返す
+    ただし、url anchor(文中に#がついているもの)は除外する
+    """
+    hashtags = []
+    # urlを全て除外
+    for url in extract_url(text):
+        text = text.replace(url, "")
+    for hashtag in re.findall(r"#\S+", text):
+        hashtags.append(hashtag)
+    return hashtags
+
+
 def get_byte_length(text: str) -> int:
     """入力した文字列のバイト長を返す"""
     return len(text.encode("utf-8"))

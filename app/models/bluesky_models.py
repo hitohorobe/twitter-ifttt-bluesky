@@ -24,7 +24,8 @@ class Feature(BaseModel):
     types: str = Field(
         serialization_alias="$type", default="app.bsky.richtext.facet#link"
     )
-    uri: HttpUrl
+    uri: Optional[HttpUrl] = None
+    tag: Optional[str] = None
 
 
 class Facet(BaseModel):
