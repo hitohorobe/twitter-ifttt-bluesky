@@ -5,6 +5,8 @@ from typing import Optional
 
 import requests
 from bs4 import BeautifulSoup
+from pydantic import HttpUrl
+from pydantic.type_adapter import TypeAdapter
 
 from app.models.ogp_models import OGP
 from app.settings.bluesky_settings import BLUESKY_REQUEST_TIMEOUT
@@ -78,6 +80,8 @@ def _get_ogp_from_bluesky(url: str, user_agent: str) -> Optional[OGP]:
 def _get_ogp_from_amazon(url: str, user_agent: str) -> Optional[OGP]:
     """Retrieve OGP from Amazon and if it's not available return mock ogp data"""
     ogp = _get_ogp_from_bluesky(url, user_agent)
+    if ogp is None:
+        return None
 
     if not ogp.title or not ogp.description:
         try:
@@ -90,7 +94,7 @@ def _get_ogp_from_amazon(url: str, user_agent: str) -> Optional[OGP]:
             return OGP(
                 title=title,
                 description=title,
-                url=url,
+                url=TypeAdapter(HttpUrl).validate_python(url),
             )
         except Exception as e:
             logger.error(e)
