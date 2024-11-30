@@ -24,12 +24,12 @@ stop:
 
 lint:
 	@echo "Check source code style..."
-	@poetry run ruff check .
-	@poetry run mypy . --explicit-package-bases --install-types --non-interactive
+	@docker compose exec ${CONTAINER_NAME} poetry run ruff check .
+	@docker compose exec ${CONTAINER_NAME} poetry run mypy . --explicit-package-bases --install-types --non-interactive
 
 format:
 	@echo "Format source code..."
-	@poetry run ruff check . --fix
+	@docker compose exec ${CONTAINER_NAME} poetry run ruff check . --fix
 
 test:
 	@echo "start pytest..."
