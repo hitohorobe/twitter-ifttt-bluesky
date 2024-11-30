@@ -55,7 +55,7 @@ from app.utils.url_utils import (
 logger = getLogger("uvicorn.app")
 requests_cache.install_cache("bluesky_cache", backend="sqlite", expire_after=300)
 CLIENT_NAME = os.getenv("CLIENT_NAME", DEFAULT_CLIENT_NAME)
-MAX_THUMB_IMAGE_SIZE = 1 * 1024 * 1024  # 1MB
+MAX_THUMB_IMAGE_SIZE = 976.56 * 1024  # 976.56KB
 
 
 class Bluesky:
