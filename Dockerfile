@@ -12,7 +12,7 @@ ENV PATH="/root/.local/bin:$PATH"
 ENV POETRY_NO_INTERACTION=1
 
 RUN poetry config virtualenvs.create false --local
-RUN poetry install
+RUN poetry install --no-root
 
 EXPOSE 8080
 
@@ -20,7 +20,7 @@ EXPOSE 8080
 # for release
 FROM local AS gcloud
 
-RUN poetry install --only main
+RUN poetry install --only main --no-root
 EXPOSE 8000
 
 ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
