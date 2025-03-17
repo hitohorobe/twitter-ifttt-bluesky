@@ -36,9 +36,16 @@ def test_expand_url_twitter():
     assert expanded_url == "https://x.com/hito_horobe2/status/1805572107662934083"
 
 
-def test_expand_url_al_dmm():
-    # DMMのURLは展開しない
+def test_expand_url_al_dmm_com():
+    # DMM.comのアフィリエイトURLは展開しない
     original_url = "https://al.dmm.com/?lurl=https%3A%2F%2Fbook.dmm.com%2F&af_id=dmmg-001&ch=toolbar&ch_id=link"
+    expanded_url = expand_url(original_url)
+    assert expanded_url == original_url
+
+
+def test_expand_url_al_dmm_co_jp():
+    # DMM.co.jpのアフィリエイトURLは展開しない
+    original_url = "https://al.dmm.co.jp/?lurl=https%3A%2F%2Fwww.dmm.co.jp%2Fdc%2Fdoujin%2F&af_id=dmmg-001&ch=toolbar&ch_id=link"
     expanded_url = expand_url(original_url)
     assert expanded_url == original_url
 
