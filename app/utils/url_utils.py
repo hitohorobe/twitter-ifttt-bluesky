@@ -19,6 +19,8 @@ def expand_url(url: str) -> str:
     """入力したURLを展開して返す。OGPの有無によって、次の挙動をする
     - amzn.to: そのまま返す
     - bit.ly: そのまま返す
+    - al.dmm.com: そのまま返す
+    - al.dmm.co.jp: そのまま返す
     - twitter.com または x.com で末尾に/photo/1を含む場合: 末尾の/photo/1を削除して返す
     - それ以外: 展開が完了するまで再帰的に処理し、展開後のURLを返す
     """
@@ -28,6 +30,10 @@ def expand_url(url: str) -> str:
         if "https://amzn.to" in url:
             return url
         if "https://bit.ly" in url:
+            return url
+        if "https://al.dmm.com" in url:
+            return url
+        if "https://al.dmm.co.jp" in url:
             return url
         response = requests.get(
             url, timeout=BLUESKY_REQUEST_TIMEOUT, headers=headers, allow_redirects=False
