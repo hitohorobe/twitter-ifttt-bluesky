@@ -14,7 +14,7 @@ from app.models.exception_models import (
     PostFailedErrorMessage,
 )
 from app.models.ifttt_models import IftttRequestBody
-from app.utils.bluesky_utils import Bluesky
+from app.services.bluesky_service import BlueskyService
 
 log_level = os.getenv("LOG_LEVEL", "INFO")
 logger = getLogger("uvicorn.app")
@@ -41,7 +41,7 @@ def twitter_to_bluesky(body: IftttRequestBody) -> Optional[CreateRecordPayload]:
         text = body.text
         link_to_tweet = body.link_to_tweet
 
-        bluesky = Bluesky()
+        bluesky = BlueskyService()
         login_response = bluesky.login(handle, app_password)
         if login_response is None:
             raise HTTPException(

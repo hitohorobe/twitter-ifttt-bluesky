@@ -58,7 +58,7 @@ CLIENT_NAME = os.getenv("CLIENT_NAME", DEFAULT_CLIENT_NAME)
 MAX_THUMB_IMAGE_SIZE = 976.56 * 1024  # 976.56KB
 
 
-class Bluesky:
+class BlueskyService:
     """
     Bluesky の操作クラス
     - login: ログイン
@@ -315,7 +315,7 @@ class Bluesky:
 
             image_upload_response = None
             if ogp.image:
-                image_upload_response = Bluesky.upload_image(
+                image_upload_response = BlueskyService.upload_image(
                     login_response, str(ogp.image)
                 )
 
@@ -358,7 +358,7 @@ class Bluesky:
         # Embed が存在し、かつリストの最後の要素がセンシティブリストに含まれるURLを持っている場合、
         # センシティブラベルを付与
         if embed and embed[-1] is not None and embed[-1].external is not None:
-            label_value = Bluesky.sensitive_url_check(str(embed[-1].external.uri))
+            label_value = BlueskyService.sensitive_url_check(str(embed[-1].external.uri))
             if label_value:
                 labels = Labels(
                     types="com.atproto.label.defs#selfLabels",
