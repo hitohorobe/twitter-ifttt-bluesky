@@ -41,7 +41,7 @@ class TestOgpUtils:
         assert ogp.site_name
 
 
-    def test_get_opg_error(self, mocker):
+    def test_get_ogp_error(self, mocker):
         # 存在しないURLの場合はNoneを返す
         url = "https://notexist.url/"
         ogp = get_ogp(url)
