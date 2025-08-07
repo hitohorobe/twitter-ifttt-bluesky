@@ -1,8 +1,8 @@
 import pytest
 
+from app.models.ogp_models import OGP
 from app.utils import ogp_utils
 from app.utils.ogp_utils import get_ogp
-from app.models.ogp_models import OGP
 
 
 class TestOgpUtils:
