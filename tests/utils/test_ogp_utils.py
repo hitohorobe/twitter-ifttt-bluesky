@@ -16,7 +16,7 @@ class TestOgpUtils:
             site_name="GitHub",
             type="profile",
         )
-        mocker.patch.object(ogp_utils, "_get_ogp_from_requests", return_value=mock_response)
+        mocker.patch.object(ogp_utils, "_get_ogp_from_bluesky", return_value=mock_response)
         url = "https://github.com/hitohorobe"
         ogp = get_ogp(url)
         assert ogp.title

@@ -9,8 +9,8 @@ from app.models.bluesky_models import (
     LoginResponse,
     Ref,
 )
+from app.services.bluesky_service import BlueskyService
 from app.settings.bluesky_settings import LIMIT_MESSAGE_LENGTH
-from app.utils.bluesky_utils import Bluesky
 
 TEST_HANDLE = os.getenv("TEST_HANDLE")
 TEST_APP_PASSWORD = os.getenv("TEST_APP_PASSWORD")
@@ -18,13 +18,13 @@ TEST_APP_PASSWORD = os.getenv("TEST_APP_PASSWORD")
 
 def test_login(mocker: MockerFixture):
     mock_login = mocker.patch(
-        "app.utils.bluesky_utils.Bluesky.login",
+        "app.services.bluesky_service.BlueskyService.login",
         return_value = LoginResponse(
             access_jwt="test_access_jwt",
             did="test_did"
         )
     )
-    response = Bluesky.login(
+    response = BlueskyService.login(
         handle=TEST_HANDLE, app_password=TEST_APP_PASSWORD #type: ignore
     )
     assert response
@@ -34,7 +34,7 @@ def test_login(mocker: MockerFixture):
 
 def test_upload_image(mocker: MockerFixture):
     mock_login = mocker.patch(
-        "app.utils.bluesky_utils.Bluesky.login",
+        "app.services.bluesky_service.BlueskyService.login",
         return_value = LoginResponse(
             access_jwt="test_access_jwt",
             did="test_did"
@@ -42,7 +42,7 @@ def test_upload_image(mocker: MockerFixture):
     )
 
     mock_upload_images = mocker.patch(
-        "app.utils.bluesky_utils.Bluesky.upload_image",
+        "app.services.bluesky_service.BlueskyService.upload_image",
         return_value = ImageUploadResponse(
             blob=Blob(
                 types="blob",
@@ -53,30 +53,30 @@ def test_upload_image(mocker: MockerFixture):
         )
     )
 
-    login_response = Bluesky.login(
+    login_response = BlueskyService.login(
         handle=TEST_HANDLE, app_password=TEST_APP_PASSWORD #type: ignore
     )
     assert login_response
     image_url = "https://pbs.twimg.com/ad_img/1422896111061061637/_k-yEm5a?format=jpg&name=small"
-    response = Bluesky.upload_image(login_response, image_url)
+    response = BlueskyService.upload_image(login_response, image_url)
     assert response
 
 
 def test_sensitive_url_check_true():
     url = "https://www.dlsite.com/home/work/=/product_id/RJ01128034.html"
-    response = Bluesky.sensitive_url_check(url)
+    response = BlueskyService.sensitive_url_check(url)
     assert response == LabelEnum.porn
 
 
 def test_sensitive_url_check_false():
     url = "https://www.google.com/"
-    response = Bluesky.sensitive_url_check(url)
+    response = BlueskyService.sensitive_url_check(url)
     assert response == None
 
 
 def test_make_record(mocker: MockerFixture):
     mock_login = mocker.patch(
-        "app.utils.bluesky_utils.Bluesky.login",
+        "app.services.bluesky_service.BlueskyService.login",
         return_value = LoginResponse(
             access_jwt="test_access_jwt",
             did="test_did"
@@ -84,7 +84,7 @@ def test_make_record(mocker: MockerFixture):
     )
 
     mock_upload_images = mocker.patch(
-        "app.utils.bluesky_utils.Bluesky.upload_image",
+        "app.services.bluesky_service.BlueskyService.upload_image",
         return_value = ImageUploadResponse(
             blob=Blob(
                 types="blob",
@@ -95,11 +95,11 @@ def test_make_record(mocker: MockerFixture):
         )
     )
 
-    login_response = Bluesky.login(
+    login_response = BlueskyService.login(
         handle=TEST_HANDLE, app_password=TEST_APP_PASSWORD #type: ignore
     )
     assert login_response
     text = "test https://hito-horobe.net/ です"
     link_to_tweet = "https://x.com/hito_horobe2/status/1801101262727037180"
-    record = Bluesky.make_record(login_response, text, link_to_tweet)
+    record = BlueskyService.make_record(login_response, text, link_to_tweet)
     assert record
