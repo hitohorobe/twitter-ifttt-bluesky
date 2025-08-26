@@ -7,6 +7,7 @@ PORN_URL_LIST = [
     "al.dmm.co.jp",
     "al.dmm.com",
     "al.fanza.com",
+    "al.fanza.co.jp",
     "video.dmm.com",
     "xvideos.com",
     "pornhub.com",
