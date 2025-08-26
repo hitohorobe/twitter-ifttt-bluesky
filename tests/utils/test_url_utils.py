@@ -50,6 +50,20 @@ def test_expand_url_al_dmm_co_jp():
     assert expanded_url == original_url
 
 
+def test_expand_url_al_fanza_com():
+    # FanzaのアフィリエイトURLは展開しない
+    original_url = "https://al.fanza.com/?lurl=https%3A%2F%2Fwww.dmm.co.jp%2Fdc%2Fdoujin%2F-%2Fdetail%2F%3D%2Fcid%3Dd_065917%2F&af_id=dmmg-002&ch=link_tool&ch_id=link"
+    expanded_url = expand_url(original_url)
+    assert expanded_url == original_url
+
+
+def test_expand_url_al_fanza_co_jp():
+    # Fanza.co.jpのアフィリエイトURLは展開しない
+    original_url = "https://al.fanza.co.jp/?lurl=https%3A%2F%2Fwww.dmm.co.jp%2Fdc%2Fdoujin%2F-%2Fdetail%2F%3D%2Fcid%3Dd_065917%2F&af_id=dmmg-002&ch=link_tool&ch_id=link"
+    expanded_url = expand_url(original_url)
+    assert expanded_url == original_url
+
+
 def test_ommit_long_url():
     # URLを省略表示する
     url = "https://ja.wikipedia.org/wiki/GitHub"
