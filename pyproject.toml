@@ -21,7 +21,7 @@ httpx = "^0.28.1"
 pytest = "^9.0.1"
 ruff = "^0.14.10"
 pre-commit = "^4.5.1"
-mypy = "^1.17.1"
+mypy = "^1.19.1"
 
 
 [tool.ruff]
