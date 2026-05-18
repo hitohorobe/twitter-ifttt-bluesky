@@ -2,7 +2,7 @@ FROM public.ecr.aws/docker/library/python:3.13.2-slim AS local
 
 WORKDIR /app
 
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.6.5 /uv /uvx /bin/
 
 COPY . .
 
