@@ -6,7 +6,7 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 COPY . .
 
-RUN uv sync --frozen
+RUN uv sync --frozen --no-install-project
 
 EXPOSE 8080
 
@@ -14,7 +14,7 @@ EXPOSE 8080
 # for release
 FROM local AS gcloud
 
-RUN uv sync --frozen --no-dev
+RUN uv sync --frozen --no-install-project --no-dev
 EXPOSE 8000
 
 ENTRYPOINT ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
