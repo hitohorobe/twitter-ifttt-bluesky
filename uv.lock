@@ -602,13 +602,13 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "bs4", specifier = ">=0.0.2,<0.0.3" },
-    { name = "fastapi", specifier = ">=0.135.1,<0.138" },
+    { name = "fastapi", specifier = ">=0.135.1,<0.140" },
     { name = "httpx", specifier = ">=0.28.1,<0.29" },
     { name = "pillow", specifier = ">=12.1.1,<13" },
     { name = "pydantic", specifier = ">=2.12.5,<3" },
     { name = "requests", specifier = ">=2.33.0,<3" },
     { name = "requests-cache", specifier = ">=1.2.1,<2" },
-    { name = "uvicorn", specifier = ">=0.41.0,<0.50" },
+    { name = "uvicorn", specifier = ">=0.41.0,<0.51" },
 ]
 
 [package.metadata.requires-dev]

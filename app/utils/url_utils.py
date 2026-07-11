@@ -1,4 +1,5 @@
 import re
+from urllib.parse import urljoin
 
 import requests
 
@@ -45,7 +46,8 @@ def expand_url(url: str) -> str:
             url, timeout=BLUESKY_REQUEST_TIMEOUT, headers=headers, allow_redirects=False
         )
         if 300 <= response.status_code < 400:
-            return expand_url(response.headers["Location"])
+            location = urljoin(url, response.headers["Location"])
+            return expand_url(location)
         else:
             if "twitter.com" in url or "x.com" in url:
                 if "/photo/1" in url:
