@@ -12,7 +12,7 @@ dependencies = [
     "requests>=2.33.0,<3",
     "bs4>=0.0.2,<0.0.3",
     "requests-cache>=1.2.1,<2",
-    "pillow>=12.1.1,<13",
+    "pillow>=12.3.0,<13",
     "httpx>=0.28.1,<0.29",
 ]
 
