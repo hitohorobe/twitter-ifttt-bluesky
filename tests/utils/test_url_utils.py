@@ -15,7 +15,7 @@ def test_extract_url():
 
 def test_expand_url():
     # 短縮URLを展開する
-    # t.coの場合は展開して返す
+    # t.coの場合は1回展開し、展開先がTwitter/X内部ドメインでなければそのまま返す
     original_url = "https://t.co/GraXSTDt9n"
     expanded_url = expand_url(original_url)
     assert expanded_url == "https://github.com/hitohorobe"
@@ -24,13 +24,16 @@ def test_expand_url():
 def test_expand_url_amazon():
     # Amazonの短縮URLでOGPを持っているページの場合は展開しない
     # AmazonのURLはすべて展開するとOGP画像がなくなるため
+    # (amzn.to は t.co でも Twitter/X 内部ドメインでもないため、
+    #  expand_url のガードによりリクエストすら送らずそのまま返る)
     original_url = "https://amzn.to/3RFJ2HN"
     expanded_url = expand_url(original_url)
     assert expanded_url == "https://amzn.to/3RFJ2HN"
 
 
 def test_expand_url_twitter():
-    # TwitterのURLをx.comになるまで再帰的に展開する
+    # t.co経由でリダイレクトされた先がTwitter/X内部ドメイン(x.com)の場合は、
+    # リダイレクトが発生しなくなるまで再帰的に展開する
     original_url = "https://t.co/BfZI5kTpvq"
     expanded_url = expand_url(original_url)
     assert expanded_url == "https://x.com/hito_horobe2/status/1805572107662934083"
@@ -38,6 +41,7 @@ def test_expand_url_twitter():
 
 def test_expand_url_al_dmm_com():
     # DMM.comのアフィリエイトURLは展開しない
+    # (t.co でも Twitter/X 内部ドメインでもないため展開されない)
     original_url = "https://al.dmm.com/?lurl=https%3A%2F%2Fbook.dmm.com%2F&af_id=dmmg-001&ch=toolbar&ch_id=link"
     expanded_url = expand_url(original_url)
     assert expanded_url == original_url
@@ -45,6 +49,7 @@ def test_expand_url_al_dmm_com():
 
 def test_expand_url_al_dmm_co_jp():
     # DMM.co.jpのアフィリエイトURLは展開しない
+    # (t.co でも Twitter/X 内部ドメインでもないため展開されない)
     original_url = "https://al.dmm.co.jp/?lurl=https%3A%2F%2Fwww.dmm.co.jp%2Fdc%2Fdoujin%2F&af_id=dmmg-001&ch=toolbar&ch_id=link"
     expanded_url = expand_url(original_url)
     assert expanded_url == original_url
@@ -52,6 +57,7 @@ def test_expand_url_al_dmm_co_jp():
 
 def test_expand_url_al_fanza_com():
     # FanzaのアフィリエイトURLは展開しない
+    # (t.co でも Twitter/X 内部ドメインでもないため展開されない)
     original_url = "https://al.fanza.com/?lurl=https%3A%2F%2Fwww.dmm.co.jp%2Fdc%2Fdoujin%2F-%2Fdetail%2F%3D%2Fcid%3Dd_065917%2F&af_id=dmmg-002&ch=link_tool&ch_id=link"
     expanded_url = expand_url(original_url)
     assert expanded_url == original_url
@@ -59,7 +65,30 @@ def test_expand_url_al_fanza_com():
 
 def test_expand_url_al_fanza_co_jp():
     # Fanza.co.jpのアフィリエイトURLは展開しない
+    # (t.co でも Twitter/X 内部ドメインでもないため展開されない)
     original_url = "https://al.fanza.co.jp/?lurl=https%3A%2F%2Fwww.dmm.co.jp%2Fdc%2Fdoujin%2F-%2Fdetail%2F%3D%2Fcid%3Dd_065917%2F&af_id=dmmg-002&ch=link_tool&ch_id=link"
+    expanded_url = expand_url(original_url)
+    assert expanded_url == original_url
+
+
+def test_expand_url_rakuten():
+    # 楽天アフィリエイトのURLは展開しない
+    # (t.co経由でこのURLにリダイレクトされた場合、アフィリエイトのリダイレクトを
+    #  壊さないよう、これ以上展開してはいけない。楽天のドメインは t.co でも
+    #  Twitter/X 内部ドメインでもないため、expand_url のガードにより
+    #  リクエストすら送らずそのまま返る)
+    original_url = "https://hb.afl.rakuten.co.jp/ichiba/2cd96950.92086c80.2cd96951.9968d295/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F977831%2F&link_type=hybrid_url&ut=eyJwYWdlIjoiaXRlbSIsInR5cGUiOiJoeWJyaWRfdXJsIiwic2l6ZSI6IjI0MHgyNDAiLCJuYW0iOjEsIm5hbXAiOiJyaWdodCIsImNvbSI6MSwiY29tcCI6ImRvd24iLCJwcmljZSI6MSwiYm9yIjoxLCJjb2wiOjEsImJidG4iOjEsInByb2QiOjAsImFtcCI6ZmFsc2V9"
+    expanded_url = expand_url(original_url)
+    assert expanded_url == original_url
+
+
+def test_expand_url_a_r10():
+    # 楽天アフィリエイトの短縮URLは展開しない
+    # (t.co経由でこのURLにリダイレクトされた場合、アフィリエイトのリダイレクトを壊さないよう、
+    # これ以上展開してはいけない。楽天のドメインは t.co でも
+    #  Twitter/X 内部ドメインでもないため、expand_url のガードにより
+    # リクエストすら送らずそのまま返る)
+    original_url = "https://a.r10.to/hgWJRV"
     expanded_url = expand_url(original_url)
     assert expanded_url == original_url
 

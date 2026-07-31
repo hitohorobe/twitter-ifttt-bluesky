@@ -1,10 +1,11 @@
 import re
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 import requests
 
 from app.models.bluesky_models import LabelEnum
 from app.settings.bluesky_settings import BLUESKY_REQUEST_TIMEOUT
+from app.settings.expandable_url_list import EXPANDABLE_HOSTS, TWITTER_INTERNAL_HOSTS
 from app.utils.ogp_utils import get_ogp
 
 
@@ -17,31 +18,26 @@ def extract_url(text: str) -> list[str]:
 
 
 def expand_url(url: str) -> str:
-    """入力したURLを展開して返す。URLによって次の挙動をする
-    - amzn.to: そのまま返す
-    - bit.ly: そのまま返す
-    - al.dmm.com: そのまま返す
-    - al.dmm.co.jp: そのまま返す
-    - al.fanza.com: そのまま返す
-    - al.fanza.co.jp: そのまま返す
-    - twitter.com または x.com で末尾に/photo/1を含む場合: 末尾の/photo/1を削除して返す
-    - それ以外: 展開が完了するまで再帰的に処理し、展開後のURLを返す
+    """入力したURLを展開して返す。URLのホストによって次の挙動をする
+    - ホストが t.co でも Twitter/X の内部ドメイン(TWITTER_INTERNAL_HOSTS)でもない場合:
+      リクエストを送らずそのまま返す
+      (アフィリエイトリンク等、展開すると最終URLに正規化されアフィリエイトが
+      機能しなくなるURLを保護するため)
+    - ホストが t.co の場合:
+      1回リダイレクトを辿り、その結果のURLを返す。
+      ただし、リダイレクト先が Twitter/X の内部ドメインだった場合は、
+      リダイレクトが発生しなくなるまで再帰的に展開を続ける
+    - ホストが Twitter/X の内部ドメインの場合:
+      リダイレクトが発生しなくなるまで再帰的に展開する。
+      最終的なURLの末尾に /photo/1 を含む場合は、それを取り除いて返す
     """
     user_agent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64)"
     headers = {"User-Agent": user_agent}
     try:
-        if "https://amzn.to" in url:
+        hostname = urlparse(url).hostname
+        if hostname not in EXPANDABLE_HOSTS:
             return url
-        if "https://bit.ly" in url:
-            return url
-        if "https://al.dmm.com" in url:
-            return url
-        if "https://al.dmm.co.jp" in url:
-            return url
-        if "https://al.fanza.com" in url:
-            return url
-        if "https://al.fanza.co.jp" in url:
-            return url
+
         response = requests.get(
             url, timeout=BLUESKY_REQUEST_TIMEOUT, headers=headers, allow_redirects=False
         )
@@ -49,9 +45,8 @@ def expand_url(url: str) -> str:
             location = urljoin(url, response.headers["Location"])
             return expand_url(location)
         else:
-            if "twitter.com" in url or "x.com" in url:
-                if "/photo/1" in url:
-                    return url.replace("/photo/1", "")
+            if hostname in TWITTER_INTERNAL_HOSTS and "/photo/1" in url:
+                return url.replace("/photo/1", "")
             return response.url
     except Exception as e:
         print(e)
