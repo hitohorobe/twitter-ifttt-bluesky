@@ -2,6 +2,7 @@ import json
 import os
 from logging import getLogger
 from typing import Optional
+from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
@@ -15,14 +16,51 @@ log_level = os.getenv("LOG_LEVEL", "INFO")
 logger = getLogger("uvicorn.app")
 logger.setLevel(log_level)
 
+MAX_OGP_REDIRECTS = 10
 
-def _get_ogp_from_requests(url: str, user_agent: str) -> Optional[OGP]:
+
+def _resolve_redirects(
+    url: str, headers: dict, cookies: Optional[dict] = None
+) -> Optional[requests.Response]:
+    """3xxのリダイレクトを自前で辿り、最終的なレスポンスを返す。
+    requestsのデフォルトのリダイレクト追跡では、Locationヘッダーの無い3xxで
+    追跡が止まってしまうサイトがあるため、明示的に辿る。
+    Locationヘッダーが無い3xx、同一URLへの回帰、規定回数を超えるリダイレクトなど、
+    本当に解決不能な場合のみNoneを返す。
+    """
+    visited: set[str] = set()
+    current_url = url
+    for _ in range(MAX_OGP_REDIRECTS):
+        response = requests.get(
+            current_url,
+            headers=headers,
+            cookies=cookies,
+            timeout=BLUESKY_REQUEST_TIMEOUT,
+            allow_redirects=False,
+        )
+        if 300 <= response.status_code < 400:
+            location = response.headers.get("Location")
+            if not location:
+                return None
+            next_url = urljoin(current_url, location)
+            if next_url in visited:
+                return None
+            visited.add(next_url)
+            current_url = next_url
+            continue
+        return response
+    return None
+
+
+def _get_ogp_from_requests(
+    url: str, user_agent: str, cookies: Optional[dict] = None
+) -> Optional[OGP]:
     """Retrieve OGP using requests"""
     headers = {"User-Agent": user_agent}
     try:
-        response = requests.get(url, headers=headers, timeout=BLUESKY_REQUEST_TIMEOUT)
+        response = _resolve_redirects(url, headers, cookies)
 
-        if response.status_code != 200:
+        if response is None or response.status_code != 200:
             return None
 
         soup = BeautifulSoup(response.text, "html.parser")
@@ -119,6 +157,22 @@ def get_ogp(url: str) -> Optional[OGP]:
     if url.find("amzn.to") != -1:
         user_agent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64)"
         return _get_ogp_from_bluesky(url, user_agent)
+    # DMM/FANZAはcardyb.bsky.appでは取得できないため直接取得する。
+    # 年齢確認ページにリダイレクトされないようCookieを付与する
+    if (
+        url.find("dmm.co.jp") != -1
+        or url.find("dmm.com") != -1
+        or url.find("fanza.com") != -1
+        or url.find("fanza.co.jp") != -1
+    ):
+        user_agent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64)"
+        return _get_ogp_from_requests(
+            url, user_agent, cookies={"age_check_done": "1"}
+        )
+    # 楽天はcardyb.bsky.appでは取得できないため直接取得する
+    if url.find("rakuten.co.jp") != -1 or url.find("r10.to") != -1:
+        user_agent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64)"
+        return _get_ogp_from_requests(url, user_agent)
     # elif url.find("amazon.co.jp") != -1:
     #    user_agent = "facebookexternalhit"
     #    return _get_ogp_from_requests(url, user_agent)

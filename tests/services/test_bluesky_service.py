@@ -74,6 +74,13 @@ def test_sensitive_url_check_false():
     assert response == None
 
 
+def test_sensitive_url_check_dmm():
+    # PORN_URL_LISTのカンマ抜けにより www.dmm.co.jp が判定されなかった回帰を防ぐ
+    url = "https://www.dmm.co.jp/dc/doujin/-/detail/=/cid=d_065917/"
+    response = BlueskyService.sensitive_url_check(url)
+    assert response == LabelEnum.porn
+
+
 def test_make_record(mocker: MockerFixture):
     mock_login = mocker.patch(
         "app.services.bluesky_service.BlueskyService.login",

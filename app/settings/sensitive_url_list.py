@@ -1,7 +1,7 @@
 PORN_URL_LIST = [
     "www.dlsite.com",
     "dlaf.jp",
-    "dlsharing.com"
+    "dlsharing.com",
     "www.dmm.co.jp",
     "www.dmm.com",
     "al.dmm.co.jp",
